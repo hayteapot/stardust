@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useInterval } from "react-use";
 import { useState, useEffect } from "react";
+import NewPlayerForm from "@components/NewPlayerForm";
 
 const GamePage = () => {
   const router = useRouter();
@@ -9,6 +10,7 @@ const GamePage = () => {
   // State to store game data and player ID
   const [gameData, setGameData] = useState(null);
   const [playerId, setPlayerId] = useState(null);
+  const [playerName, setPlayerName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -17,8 +19,7 @@ const GamePage = () => {
     try {
       const response = await fetch("/api/games/" + gameid);
       const data = await response.json();
-      setGameData(data.gameData);
-      setPlayerId(data.playerId);
+      setGameData(data);
     } catch (error) {
       setError(error);
     } finally {
@@ -36,6 +37,7 @@ const GamePage = () => {
           const response = await fetch(`/api/games/${gameid}/sessions/new`);
           const sessionData = await response.json();
           setPlayerId(sessionData.playerId);
+          setPlayerName(sessionData.playerName);
 
           // Add player to the game (logic depends on your game implementation)
           // ...
@@ -61,14 +63,25 @@ const GamePage = () => {
   return (
     <div>
       <h1>Game ID: {gameid}</h1>
-      {playerId && (
-        // Render game content for player
-        <p>You are player: {playerId}</p>
-      )}
-      {gameData && gameData.players && (
+      {playerId &&
+        (playerName ? (
+          <p>Player name: {playerName}</p>
+        ) : (
+          <NewPlayerForm
+            playerId={playerId}
+            gameId={gameid}
+            submitName={setPlayerName}
+          />
+        ))}
+      {gameData &&
+        gameData.players &&
         // Render game content for all players
-        <p>All layers: {gameData.players.join(", ")}</p>
-      )}
+        gameData.players.map((player) => (
+          <p key={player.playerId}>
+            {player.playerId} - {player.playerName} -{" "}
+            {player.ready ? "Ready" : "Not ready"}
+          </p>
+        ))}
       {!playerId && (
         // Render waiting for session or game start logic
         <p>Connecting....</p>
