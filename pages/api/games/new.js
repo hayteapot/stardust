@@ -1,15 +1,5 @@
-import { getIronSession } from "iron-session";
-import Redis from "ioredis";
 import { v4 as uuidv4 } from "uuid";
-
-const redisConfig = {
-  port: process.env.REDIS_PORT,
-  host: process.env.REDIS_HOST,
-  username: process.env.REDIS_USERNAME,
-  password: process.env.REDIS_PASSWORD,
-};
-
-const redis = new Redis(redisConfig);
+import redisClient from "../middleware/redisClient";
 
 export default async function handler(req, res) {
   try {
@@ -17,7 +7,7 @@ export default async function handler(req, res) {
     const gameId = uuidv4();
 
     // Store game ID in Redis with initial data
-    await redis.set(gameId, "{}");
+    await redisClient.set(gameId, "{}");
 
     res.status(201).json({ gameId });
   } catch (error) {

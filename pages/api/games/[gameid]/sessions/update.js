@@ -1,15 +1,5 @@
 import { getIronSession } from "iron-session";
-import { v4 as uuidv4 } from "uuid";
-import Redis from "ioredis";
-
-const redisConfig = {
-  port: process.env.REDIS_PORT,
-  host: process.env.REDIS_HOST,
-  username: process.env.REDIS_USERNAME,
-  password: process.env.REDIS_PASSWORD,
-};
-
-const redis = new Redis(redisConfig);
+import redisClient from "pages/api/middleware/redisClient";
 
 export default async function handler(req, res) {
   const playerName = req.query.playerName;
@@ -27,7 +17,7 @@ export default async function handler(req, res) {
   session.treacherous = treacherous;
 
   // update the game in redis to contain this player id
-  const gameData = await redis.get(gameId);
+  const gameData = await redisClient.get(gameId);
   const game = JSON.parse(gameData);
   game.players = game.players || [];
   game.players.push({
