@@ -3,13 +3,13 @@ import React from "react";
 const RoundHeader = ({ roundName, playerInstruction, canSpeak }) => {
   return (
     <div>
-      <h1>Location: {roundName}</h1>
       {canSpeak ? (
-        <p>You can speak to your fellow players.</p>
+        <b>You can speak to your fellow players.</b>
       ) : (
-        <p>You may not talk</p>
+        <b>You may not talk at this moment - SILENCE </b>
       )}
       <p>{playerInstruction}</p>
+      <h1>Location: {roundName}</h1>
     </div>
   );
 };

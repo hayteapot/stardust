@@ -10,7 +10,7 @@ const PlayerStatuses = ({ game }) => {
         </tr>
       </thead>
       {game.players.map((player) => (
-        <tbody>
+        <tbody key={player.playerId}>
           <tr>
             <td>{player?.playerName}</td>
             <td>
@@ -20,6 +20,8 @@ const PlayerStatuses = ({ game }) => {
                 ? `banished (${
                     player.treacherous ? "treacherous" : "innocent"
                   })`
+                : player?.roundCompleted
+                ? "Ready for next round"
                 : game?.currentRound &&
                   game?.gameRounds[game.currentRound - 1]?.roundType ===
                     "breakfast"

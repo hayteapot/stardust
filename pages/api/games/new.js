@@ -80,6 +80,38 @@ export default async function handler(req, res) {
           ],
         },
       ],
+      playerQuizQuestions: [
+        {
+          question: "Which player is the most popular?",
+          allPlayers: false,
+          playerAnswers: [],
+        },
+        {
+          question: "Which player is the most likely to be a treacherous?",
+          allPlayers: false,
+          playerAnswers: [],
+        },
+        {
+          question: "Which player is the most trustworthy?",
+          allPlayers: false,
+          playerAnswers: [],
+        },
+        {
+          question: "Who do you think has been to the most countries?",
+          allPlayers: false,
+          playerAnswers: [],
+        },
+        {
+          question: "Who do you think has the most siblings?",
+          allPlayers: false,
+          playerAnswers: [],
+        },
+        {
+          question: "Who makes the best cup of tea?",
+          allPlayers: false,
+          playerAnswers: [],
+        },
+      ],
     };
 
     // Create player 1 session

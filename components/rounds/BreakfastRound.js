@@ -17,11 +17,29 @@ const BreakfastRound = ({
         roundName={round.roundName}
         playerInstruction={
           player.readyForBreakfast
-            ? round.playerInstructions[0]
+            ? "You survived the night, and arrive at breakfast. "
             : "You are not yet at breakfast, and may not speak... who knows, maybe the treacherous killed you in the night? "
         }
         canSpeak={player.readyForBreakfast ? false : round.canSpeak}
       />
+
+      {done && <p>You wait nervously for claud</p>}
+
+      {gameData.players.every((player) => player.readyForBreakfast) &&
+        !done && (
+          <>
+            <p>With all the players here, are we ready for Claud?</p>
+
+            <button
+              onClick={() => {
+                setDone(true);
+                onRoundCompleted(initialPlayer.playerId);
+              }}
+            >
+              Morning Claud!
+            </button>
+          </>
+        )}
 
       {player.readyForBreakfast && player.alive && (
         <>
