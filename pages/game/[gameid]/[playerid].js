@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import { useInterval } from "react-use";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import RoundTrainStation from "@components/rounds/RoundTrainStation";
-import ShareGameLink from "@components/ShareGameLink";
+import SimpleTextRound from "@components/rounds/SimpleTextRound";
 
 const PlayerGamePage = () => {
   const router = useRouter();
@@ -59,7 +59,9 @@ const PlayerGamePage = () => {
 
   // Conditional rendering based on loading, error, or game state
   if (loading) {
-    return <div>Loading game...</div>;
+    return (
+      <div>Loading game, do not refresh. This can take up to 30 seconds...</div>
+    );
   }
 
   if (error) {
@@ -71,10 +73,13 @@ const PlayerGamePage = () => {
     <div>
       {gameData && player && gameData.gameRounds && (
         <>
+          {!player.alive && <p>You are dead</p>}
+          {player.banished && <p>You have been banished</p>}
+
           {gameData.gameRounds[currentRound - 1].roundType ==
             "train-station" && (
             <RoundTrainStation
-              round={gameData.gameRounds[currentRound]}
+              round={gameData.gameRounds[currentRound - 1]}
               gameData={gameData}
               initialPlayer={player}
               onRoundCompleted={onRoundCompleted}
@@ -82,7 +87,50 @@ const PlayerGamePage = () => {
           )}
 
           {gameData.gameRounds[currentRound - 1].roundType ==
-            "train-journey" && <>on the train</>}
+            "train-journey" && (
+            <SimpleTextRound
+              round={gameData.gameRounds[currentRound - 1]}
+              gameData={gameData}
+              initialPlayer={player}
+              onRoundCompleted={onRoundCompleted}
+              playStatus="On the train"
+              completeStatus="Outside the mansion...."
+            />
+          )}
+
+          {gameData.gameRounds[currentRound - 1].roundType == "arrival" && (
+            <SimpleTextRound
+              round={gameData.gameRounds[currentRound - 1]}
+              gameData={gameData}
+              initialPlayer={player}
+              onRoundCompleted={onRoundCompleted}
+              playStatus="Listening to Claud..."
+              completeStatus="At the mansion"
+            />
+          )}
+
+          {gameData.gameRounds[currentRound - 1].roundType ==
+            "first-round-table" && (
+            <SimpleTextRound
+              round={gameData.gameRounds[currentRound - 1]}
+              gameData={gameData}
+              initialPlayer={player}
+              onRoundCompleted={onRoundCompleted}
+              playStatus="At the Round Table"
+              completeStatus="Ready to find out their role"
+            />
+          )}
+
+          {gameData.gameRounds[currentRound - 1].roundType == "breakfast" && (
+            <BreakfastRound
+              round={gameData.gameRounds[currentRound - 1]}
+              gameData={gameData}
+              initialPlayer={player}
+              onRoundCompleted={onRoundCompleted}
+              playStatus="At the Round Table"
+              completeStatus="Ready to find out their role"
+            />
+          )}
         </>
       )}
       {!player && (

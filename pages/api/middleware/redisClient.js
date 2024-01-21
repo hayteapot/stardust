@@ -27,11 +27,38 @@ class RedisClient {
     return game;
   }
 
+  async getGameWithLock(gameId) {
+    let game = {};
+    const redisClient = new Redis(this.redisConfig);
+
+    try {
+      const gameData = await redisClient.get(gameId);
+      game = JSON.parse(gameData);
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to fetch game data");
+    } finally {
+      await redisClient.quit();
+    }
+
+    while (game.lock) {
+      await new Promise((r) => setTimeout(r, 1000));
+      game = await this.getGame(gameId);
+    }
+
+    // lock game
+    game.lock = true;
+    await this.updateGame(gameId, game);
+
+    return game;
+  }
+
   async updateGame(gameId, game) {
     const redisClient = new Redis(this.redisConfig);
     console.log("savingGame:", game);
 
     try {
+      game.lock = false;
       const gameString = JSON.stringify(game);
       await redisClient.set(gameId, gameString);
     } catch (error) {
@@ -45,7 +72,7 @@ class RedisClient {
   }
 
   async getGameSession(gameId, sessionId) {
-    let game = await this.getGame(gameId);
+    let game = await this.getGameWithLock(gameId);
 
     const session = game.players.find(
       (player) => player.playerId === sessionId

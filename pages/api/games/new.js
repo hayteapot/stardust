@@ -15,8 +15,6 @@ export default async function handler(req, res) {
         {
           roundNumber: 1,
           roundType: "train-station",
-          roundStarted: true,
-          roundFinished: false,
           roundName: "At the station",
           canSpeak: true,
           playerInstructions: [
@@ -27,8 +25,6 @@ export default async function handler(req, res) {
         {
           roundNumber: 2,
           roundType: "train-journey",
-          roundStarted: false,
-          roundFinished: false,
           roundName: "On the train",
           canSpeak: true,
           playerInstructions: [
@@ -36,15 +32,13 @@ export default async function handler(req, res) {
             "The game will instruct you when you can speak.",
             "The game will instruct you when you can not speak.",
             "Sometimes, things will happen for different players slightly out of sequence. This is normal, and helps mask the actions of some players.",
-            "During this game, you will play many different mini games and quizzes. Some will allow you to speak, others will forbit it. Play close attention to the instructions, and you will be fine.",
-            "Enjoy your time with your fellow passengers. When you are all ready, click Arrive.",
+            "During this game, you will play many different mini games and quizzes. Some will allow you to speak, others will forbid it. Play close attention to the instructions, and you will be fine.",
+            "Enjoy your time with your fellow passengers. When you are all ready, click Next Step to arrive at the Mansion.",
           ],
         },
         {
           roundNumber: 3,
           roundType: "arrival",
-          roundStarted: false,
-          roundFinished: false,
           roundName: "Arrival",
           canSpeak: false,
           playerInstructions: [
@@ -60,25 +54,29 @@ export default async function handler(req, res) {
         {
           roundNumber: 4,
           roundType: "first-round-table",
-          roundStarted: false,
-          roundFinished: false,
           canSpeak: false,
           roundName: "First round table",
           playerInstructions: [
             "You are at the first round table. The fabulous Claud arrives and instructs When you have all pressed ready, you will find out if you are innocent, or treacherous. ",
             "Put your heads down. Do not look at each other. I am about to reveal if you are innocent, or treacherous. ",
-            "Now you are ready. It is late in the day, and time to rest. Press next, and we will reconvene tomorrow for the first breakfast. ",
           ],
         },
         {
           roundNumber: 5,
+          roundType: "first-night",
+          canSpeak: false,
+          roundName: "First Night",
+          playerInstructions: [
+            "Rest, and prepare for the next day. You will be given a challenge, and a chance to banish a player. ",
+          ],
+        },
+        {
+          roundNumber: 6,
           roundType: "breakfast",
-          roundStarted: false,
-          roundFinished: false,
           canSpeak: false,
           roundName: "Breakfast",
           playerInstructions: [
-            "Players are still arriving. Wait for all players to arrive... or not, and then press ready. ",
+            "At the breakfast table, you can enjoy a range of snacks (bringing snacks out at this point in the game really helps set the mood). You wait in trepidation to find out what players survived the night. At the end of breakfast, your daily challenge will be set. ",
           ],
         },
       ],
