@@ -12,7 +12,7 @@ const PlayerGamePage = () => {
   const [gameData, setGameData] = useState({
     gameId: gameid,
   });
-  const [currentRound, setCurrentRound] = useState(0);
+  const [currentRound, setCurrentRound] = useState(1);
   const [player, setPlayer] = useState({
     playerId: playerid,
   });
@@ -21,24 +21,18 @@ const PlayerGamePage = () => {
 
   // Fetch game data and player information on component mount
   useInterval(async () => {
-    console.log("fetching game data: " + gameid);
-
     if (!gameid) return;
 
     try {
       const response = await fetch("/api/games/" + gameid);
       const data = await response.json();
       setGameData(data);
-
-      console.log(data);
-      console.log(playerid);
+      setCurrentRound(data.currentRound);
 
       // Refresh player data
       const player = data.players.find(
         (player) => player.playerId === playerid
       );
-
-      console.log(player);
 
       setPlayer(player);
     } catch (error) {
@@ -47,6 +41,21 @@ const PlayerGamePage = () => {
       setLoading(false);
     }
   }, 5000); // Check every 5 seconds
+
+  const onRoundCompleted = async (playerId) => {
+    console.log("Initiating round completed");
+
+    try {
+      // update player
+      await fetch(
+        `/api/games/${gameid}/sessions/${playerId}/update/roundCompleted?roundCompleted=true`
+      );
+
+      console.log("Round completed");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Conditional rendering based on loading, error, or game state
   if (loading) {
@@ -60,24 +69,22 @@ const PlayerGamePage = () => {
   // Render game content based on playerId and gameData
   return (
     <div>
-      <h1>Game ID: {gameData?.gameId}</h1>
-      <ShareGameLink />
-      {gameData &&
-        player &&
-        gameData.gameRounds &&
-        gameData.gameRounds[currentRound].roundType == "train-station" && (
-          <RoundTrainStation
-            round={gameData.gameRounds[currentRound]}
-            gameData={gameData}
-            initialPlayer={player}
-            onRoundCompleted={(newPlayerName) => {
-              // update player
-              fetch(
-                `/api/games/${gameid}/sessions/${player.playerId}/update?playerName=${newPlayerName}&roundCompleted=true&alive=true&banished=false`
-              );
-            }}
-          />
-        )}
+      {gameData && player && gameData.gameRounds && (
+        <>
+          {gameData.gameRounds[currentRound - 1].roundType ==
+            "train-station" && (
+            <RoundTrainStation
+              round={gameData.gameRounds[currentRound]}
+              gameData={gameData}
+              initialPlayer={player}
+              onRoundCompleted={onRoundCompleted}
+            />
+          )}
+
+          {gameData.gameRounds[currentRound - 1].roundType ==
+            "train-journey" && <>on the train</>}
+        </>
+      )}
       {!player && (
         // Render waiting for session or game start logic
         <p>Connecting....</p>

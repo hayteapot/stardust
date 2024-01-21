@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import redisClient from "../middleware/redisClient";
+import RedisClient from "../middleware/redisClient";
 
 export default async function handler(req, res) {
   try {
@@ -10,6 +10,7 @@ export default async function handler(req, res) {
     const game = {
       gameId,
       players: [],
+      currentRound: 1,
       gameRounds: [
         {
           roundNumber: 1,
@@ -17,6 +18,7 @@ export default async function handler(req, res) {
           roundStarted: true,
           roundFinished: false,
           roundName: "At the station",
+          canSpeak: true,
           playerInstructions: [
             "You have arrived at the train station, on your way to explore a remote Scottish Mansion. Set your name, and get ready to meet your fellow players",
             "You're ready to go. Wait for all players to join, then board the train.",
@@ -93,9 +95,8 @@ export default async function handler(req, res) {
     game.players = [];
     game.players.push(session);
 
-    // Store game ID in Redis with initial data
-    const gameString = JSON.stringify(game);
-    await redisClient.set(gameId, gameString);
+    const redisClient = new RedisClient();
+    await redisClient.updateGame(gameId, game);
 
     res.status(201).json({ gameId, playerId });
   } catch (error) {

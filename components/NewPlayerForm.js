@@ -7,7 +7,7 @@ const NewPlayerForm = ({ gameId, playerId, submitName }) => {
   const updatePlayerSession = async (playerName) => {
     // Update player name in session
     fetch(
-      `/api/games/${gameId}/sessions/${playerId}/update?playerName=${playerName}`
+      `/api/games/${gameId}/sessions/${playerId}/update/name?playerName=${playerName}`
     )
       .then((response) => response.json())
       .then((data) => {

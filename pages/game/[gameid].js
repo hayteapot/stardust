@@ -17,8 +17,6 @@ const GamePage = () => {
         // Add player to the game (logic depends on your game implementation)
         window.location.href = `/game/${gameid}/${sessionData.playerId}`;
       } catch (error) {
-        console.log(error);
-
         setError(error.data);
       }
     };

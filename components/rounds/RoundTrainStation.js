@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import RoundHeader from "./round";
 import NewPlayerForm from "@components/NewPlayerForm";
+import ShareGameLink from "@components/ShareGameLink";
 
 const RoundTrainStation = ({
   round,
@@ -8,9 +9,9 @@ const RoundTrainStation = ({
   initialPlayer,
   onRoundCompleted,
 }) => {
-  const [departed, setDeparted] = useState(false);
+  const [departed, setDeparted] = useState(initialPlayer.roundCompleted);
   const [player, setPlayer] = useState(initialPlayer);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(initialPlayer.playerName ? 1 : 0);
 
   return (
     <>
@@ -18,18 +19,14 @@ const RoundTrainStation = ({
         roundName={round.roundName}
         playerInstruction={round.playerInstructions[step]}
         canSpeak={round.canSpeak}
-      />{" "}
-      {player.playerName && (
-        <p>
-          You are: {player.playerId}:{player.playerName}
-          {departed}
-        </p>
-      )}
-      {gameData.players.length > 3 && step === 1 && (
+      />
+      <ShareGameLink />
+      {player.playerName && <p>You are: {player.playerName}</p>}
+      {gameData.players.length > 3 && step === 1 && !departed && (
         <button
           onClick={() => {
             setDeparted(true);
-            onRoundCompleted(player.playerName);
+            onRoundCompleted(initialPlayer.playerId);
           }}
         >
           Board the train
@@ -48,10 +45,13 @@ const RoundTrainStation = ({
           }}
         />
       )}
+      <h2>Player Statuses:</h2>
       {gameData?.players?.map((player) => (
         <p key={player?.playerId}>
-          {player?.playerId} - {player?.playerName} -{" "}
-          {player?.ready ? "Ready" : "Not ready"}
+          {player?.playerName} -{" "}
+          {player?.roundCompleted
+            ? "On the train"
+            : "On the platform (Not ready)"}
         </p>
       ))}
     </>

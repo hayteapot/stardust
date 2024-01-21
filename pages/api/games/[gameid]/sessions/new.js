@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
-import redisClient from "pages/api/middleware/redisClient";
+import RedisClient from "pages/api/middleware/redisClient";
 
 export default async function handler(req, res) {
   const gameId = req.query.gameid;
 
-  const gameData = await redisClient.get(gameId);
-  const game = JSON.parse(gameData);
+  const redisClient = new RedisClient();
+  const game = await redisClient.getGame(gameId);
 
   // Create session
   const session = {};
@@ -17,8 +17,7 @@ export default async function handler(req, res) {
   // save session
   game.players.push(session);
 
-  const gameString = JSON.stringify(game);
-  await redisClient.set(gameId, gameString);
+  await redisClient.updateGame(gameId, game);
 
   res.json({ playerId });
 }
