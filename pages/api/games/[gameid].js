@@ -1,22 +1,28 @@
 import RedisClient from "../middleware/redisClient";
 
 const getTreacherousPlayers = (players) => {
+  console.log("identifying treacherous players");
+
   const numPlayers = players.length;
-  const numTreacherousPlayers = Math.max(1, Math.floor(numPlayers / 3));
+
+  console.log("NUM PLAYERS", numPlayers);
+
+  // Ensure at least one traitor for games with less than 5 players
+  const numTreacherousPlayers =
+    numPlayers < 5
+      ? 1
+      : numPlayers < 11
+      ? Math.floor(numPlayers / 3)
+      : Math.floor(numPlayers / 4);
+
+  console.log("NUM DESIRED TREACHEROUS PLAYERS", numTreacherousPlayers);
+
   const treacherousPlayers = players
     .sort(() => Math.random() - 0.5)
     .slice(0, numTreacherousPlayers)
     .map((player) => player.playerId);
 
   return treacherousPlayers;
-};
-
-const updatePlayersStatus = (players, isTreacherous) => {
-  return players.map((player) => ({
-    ...player,
-    isTreacherous: isTreacherous.includes(player.playerId),
-    roundCompleted: false,
-  }));
 };
 
 const moveNextRound = (currentRound) => currentRound + 1;
@@ -43,11 +49,19 @@ const handlePlayerAtBreakfast = async (redisClient, gameId, game) => {
 
   // If not all players have made it to breakfast
   if (playersAtBreakfast.length !== playersEligibleForBreakfast.length) {
+    // Sometimes, just don't release a player for fun. 75% chance we skip and wait for next ping to release
+    if (Math.random() < 0.75) {
+      console.log("SKIPPING RELEASE OF PLAYER TO BREAKFAST");
+      return;
+    }
+
     game = await redisClient.getGameWithLock(gameId);
 
     const playerToGoToBreakfast = getRandomPlayerToGoToBreakfast(
       playersEligibleForBreakfast
     );
+
+    console.log("PLAYER TO GO TO BREAKFAST", playerToGoToBreakfast);
 
     playerToGoToBreakfast.readyForBreakfast = true;
 
@@ -78,7 +92,14 @@ export default async function handler(req, res) {
     const allPlayersReady = game.players.every(
       (player) => player.roundCompleted
     );
-    const isBreakfast = isBreakfastRound(game.rounds[game.currentRound - 1]);
+
+    console.log("ALL PLAYERS READY", allPlayersReady);
+
+    const isBreakfast = isBreakfastRound(
+      game.gameRounds[game.currentRound - 1]
+    );
+
+    console.log("IS BREAKFAST", isBreakfast);
 
     if (isBreakfast) {
       await handlePlayerAtBreakfast(redisClient, gameId, game);
@@ -89,10 +110,22 @@ export default async function handler(req, res) {
 
       if (game.currentRound === 4) {
         const treacherousPlayers = getTreacherousPlayers(game.players);
-        game.players = updatePlayersStatus(game.players, treacherousPlayers);
+
+        // Replace players with treacherous players
+        game.players = game.players.map((player) => {
+          if (treacherousPlayers.includes(player.playerId)) {
+            player.treacherous = true;
+          }
+          return player;
+        });
       }
 
-      game.players = updatePlayersStatus(game.players, []);
+      // Reset players to round completed false
+      game.players = game.players.map((player) => {
+        player.roundCompleted = false;
+        return player;
+      });
+
       game.currentRound = moveNextRound(game.currentRound);
       await redisClient.updateGame(gameId, game);
     }

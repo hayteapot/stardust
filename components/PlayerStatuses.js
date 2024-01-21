@@ -1,6 +1,6 @@
 import React from "react";
 
-const PlayerStatuses = ({ game, player }) => {
+const PlayerStatuses = ({ game }) => {
   return (
     <table>
       <thead>
@@ -9,23 +9,28 @@ const PlayerStatuses = ({ game, player }) => {
           <th>Status</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>{player?.name}</td>
-          <td>
-            {player?.alive
-              ? "dead"
-              : player?.banished
-              ? `banished (${player.treacherous ? "treacherous" : "innocent"})`
-              : game?.currentRound &&
-                game?.rounds[game.currentRound - 1]?.roundName === "breakfast"
-              ? player?.readyForBreakfast
-                ? "At breakfast"
-                : "Not at breakfast"
-              : "alive"}
-          </td>
-        </tr>
-      </tbody>
+      {game.players.map((player) => (
+        <tbody>
+          <tr>
+            <td>{player?.playerName}</td>
+            <td>
+              {!player?.alive
+                ? "dead"
+                : player?.banished
+                ? `banished (${
+                    player.treacherous ? "treacherous" : "innocent"
+                  })`
+                : game?.currentRound &&
+                  game?.gameRounds[game.currentRound - 1]?.roundType ===
+                    "breakfast"
+                ? player?.readyForBreakfast
+                  ? "At breakfast"
+                  : "Not at breakfast"
+                : "alive"}
+            </td>
+          </tr>
+        </tbody>
+      ))}
     </table>
   );
 };

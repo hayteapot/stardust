@@ -65,7 +65,7 @@ export default async function handler(req, res) {
           roundNumber: 5,
           roundType: "first-night",
           canSpeak: false,
-          roundName: "First Night",
+          roundName: "Traitor Reveal",
           playerInstructions: [
             "Rest, and prepare for the next day. You will be given a challenge, and a chance to banish a player. ",
           ],

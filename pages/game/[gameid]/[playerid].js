@@ -3,6 +3,8 @@ import { useInterval } from "react-use";
 import { useState } from "react";
 import RoundTrainStation from "@components/rounds/RoundTrainStation";
 import SimpleTextRound from "@components/rounds/SimpleTextRound";
+import FirstNight from "@components/rounds/FirstNight";
+import BreakfastRound from "@components/rounds/BreakfastRound";
 
 const PlayerGamePage = () => {
   const router = useRouter();
@@ -33,6 +35,8 @@ const PlayerGamePage = () => {
       const player = data.players.find(
         (player) => player.playerId === playerid
       );
+
+      console.log("PLAYER", player);
 
       setPlayer(player);
     } catch (error) {
@@ -75,6 +79,8 @@ const PlayerGamePage = () => {
         <>
           {!player.alive && <p>You are dead</p>}
           {player.banished && <p>You have been banished</p>}
+
+          <h3>You are {player.playerName}</h3>
 
           {gameData.gameRounds[currentRound - 1].roundType ==
             "train-station" && (
@@ -129,6 +135,15 @@ const PlayerGamePage = () => {
               onRoundCompleted={onRoundCompleted}
               playStatus="At the Round Table"
               completeStatus="Ready to find out their role"
+            />
+          )}
+
+          {gameData.gameRounds[currentRound - 1].roundType == "first-night" && (
+            <FirstNight
+              round={gameData.gameRounds[currentRound - 1]}
+              gameData={gameData}
+              initialPlayer={player}
+              onRoundCompleted={onRoundCompleted}
             />
           )}
         </>
