@@ -5,7 +5,7 @@ function StartGameButton() {
     fetch("/api/games/new")
       .then((response) => response.json())
       .then((data) => {
-        window.location.href = `/game/${data.gameId}`;
+        window.location.href = `/game/${data.gameId}/${data.playerId}`;
       })
       .catch((error) => {
         console.error("Game creation failed:", error);

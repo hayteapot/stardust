@@ -1,32 +1,24 @@
-import { getIronSession } from "iron-session";
 import { v4 as uuidv4 } from "uuid";
+import redisClient from "pages/api/middleware/redisClient";
 
 export default async function handler(req, res) {
   const gameId = req.query.gameid;
 
-  const session = await getIronSession(req, res, {
-    password: process.env.SESSION_SECRET,
-    cookieName: "my-app-session",
-  });
-
-  // if existing session with same game, return playerId
-  if (session.playerId && session.gameId === gameId) {
-    return res.json({ playerId: session.playerId });
-  }
-
-  // if existing session with playerId, but that session does not contain this gameId, wipe the session
-  if (session.playerId && !session.gameId) {
-    session.destroy();
-  }
+  const gameData = await redisClient.get(gameId);
+  const game = JSON.parse(gameData);
 
   // Create session
+  const session = {};
   const playerId = session.playerId || uuidv4();
-
   session.playerId = playerId;
-  session.gameId = gameId;
+  session.alive = true;
+  session.banished = false;
 
   // save session
-  await session.save();
+  game.players.push(session);
+
+  const gameString = JSON.stringify(game);
+  await redisClient.set(gameId, gameString);
 
   res.json({ playerId });
 }

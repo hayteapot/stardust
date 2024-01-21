@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 
-const NewPlayerForm = ({ playerId, gameId, submitName }) => {
+const NewPlayerForm = ({ gameId, playerId, submitName }) => {
   const [name, setName] = useState("");
   const [error, setError] = useState(null);
 
   const updatePlayerSession = async (playerName) => {
     // Update player name in session
-    fetch(`/api/games/${gameId}/sessions/update?playerName=${playerName}`)
+    fetch(
+      `/api/games/${gameId}/sessions/${playerId}/update?playerName=${playerName}`
+    )
       .then((response) => response.json())
       .then((data) => {
         console.log("Player session updated:", data);
@@ -42,7 +44,6 @@ const NewPlayerForm = ({ playerId, gameId, submitName }) => {
 
   return (
     <div>
-      <h2>Player ID: {playerId}</h2>
       <h3>Choose your name:</h3>
       <input
         type="text"
