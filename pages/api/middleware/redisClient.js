@@ -10,6 +10,30 @@ class RedisClient {
     };
   }
 
+  async getGameWithLock(gameId, sessionId) {
+    while (true) {
+      try {
+        const game = await this.getGame(gameId);
+        if (!game.lock) {
+          console.log(`Locking game ${gameId} for session: ${sessionId}`);
+          await this.updateGame(gameId, { ...game, lock: sessionId });
+          game.lock = sessionId;
+          return game; // Lock acquired successfully
+        } else if (game.lock === sessionId) {
+          console.log(`Game already locked by this session: {sessionId}`);
+          return game; // Already locked by this session
+        }
+      } catch (error) {
+        // Handle errors appropriately
+      }
+
+      console.log(
+        `Session ${sessionId} waiting for lock ${game.lock} to release`
+      );
+      await new Promise((r) => setTimeout(r, 1000)); // Retry with delay
+    }
+  }
+
   async getGame(gameId) {
     let game = {};
     const redisClient = new Redis(this.redisConfig);
@@ -27,38 +51,13 @@ class RedisClient {
     return game;
   }
 
-  async getGameWithLock(gameId) {
-    let game = {};
-    const redisClient = new Redis(this.redisConfig);
-
-    try {
-      const gameData = await redisClient.get(gameId);
-      game = JSON.parse(gameData);
-    } catch (error) {
-      console.error(error);
-      throw new Error("Failed to fetch game data");
-    } finally {
-      await redisClient.quit();
-    }
-
-    while (game.lock) {
-      await new Promise((r) => setTimeout(r, 1000));
-      game = await this.getGame(gameId);
-    }
-
-    // lock game
-    game.lock = true;
-    await this.updateGame(gameId, game);
-
-    return game;
-  }
-
   async updateGame(gameId, game) {
     const redisClient = new Redis(this.redisConfig);
-    console.log("savingGame:", game);
+
+    console.log(`Releasing lock ${game.lock} and updating game ${gameId}`);
 
     try {
-      game.lock = false;
+      game.lock = null;
       const gameString = JSON.stringify(game);
       await redisClient.set(gameId, gameString);
     } catch (error) {
@@ -71,8 +70,8 @@ class RedisClient {
     return game;
   }
 
-  async getGameSession(gameId, sessionId) {
-    let game = await this.getGameWithLock(gameId);
+  async getGameSessionWithLock(gameId, sessionId) {
+    let game = await this.getGameWithLock(gameId, sessionId);
 
     const session = game.players.find(
       (player) => player.playerId === sessionId
@@ -82,13 +81,7 @@ class RedisClient {
   }
 
   async updateGameSession(gameId, sessionId, updatedSession) {
-    let game = await this.getGame(gameId);
-    game = await this.getGame(gameId);
-
-    let session = game.players.find((player) => player.playerId === sessionId);
-
-    console.log("originalSession", session);
-    console.log("updatedSession", updatedSession);
+    let game = await this.getGameWithLock(gameId, sessionId);
 
     // replace session with the updated session
     game.players = game.players.map((player) => {

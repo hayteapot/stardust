@@ -112,6 +112,40 @@ export default async function handler(req, res) {
           playerAnswers: [],
         },
       ],
+      physicalActivities: [
+        {
+          activityId: 1,
+          groupGoal:
+            "As a group, find PLAYERCOUNT red objects and return to the group. If collectively you have found PLAYERCOUNT red objects before the time runs out you have won the challenge.",
+          shieldGoal:
+            "First to find a blue object and show it to the group wins a shield",
+          done: false,
+        },
+        {
+          activityId: 2,
+          groupGoal:
+            "As a group, find find PLAYERCOUNT household items. If collectively you have found PLAYERCOUNT red objects before the time runs out you have won the challenge.",
+          shieldGoal:
+            "The player who brings the smallest object back to the group wins a shield",
+          done: false,
+        },
+        {
+          activityId: 3,
+          groupGoal:
+            "Alphabet Challenge. As a group, collect objects beginning with A, B, C, D, E. If collectively you have found an object for each letter you have won the challenge.",
+          shieldGoal:
+            "The first player to find an object beginning with F wins a shield",
+          done: false,
+        },
+        {
+          activityId: 4,
+          groupGoal:
+            "Between you, find PLAYERCOUNTMINUS1 green objects. At the end of the game each player must be holding an object. If collectively you have PLAYERCOUNTMINUS1 green objects you have won the challenge.",
+          shieldGoal:
+            "If only one player brings back a blue object, they win a shield",
+          done: false,
+        },
+      ],
     };
 
     // Create player 1 session

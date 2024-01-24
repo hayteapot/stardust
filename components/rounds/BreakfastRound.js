@@ -5,25 +5,31 @@ import PlayerStatuses from "@components/PlayerStatuses";
 const BreakfastRound = ({
   round,
   gameData,
-  initialPlayer,
+  currentPlayer,
   onRoundCompleted,
 }) => {
-  const [done, setDone] = useState(initialPlayer.roundCompleted);
-  const [player, setPlayer] = useState(initialPlayer);
+  const [done, setDone] = useState(currentPlayer.roundCompleted);
 
   return (
     <>
       <RoundHeader
-        roundName={round.roundName}
+        roundName={
+          currentPlayer.readyForBreakfast ? "Breakfast" : "In your room"
+        }
         playerInstruction={
-          player.readyForBreakfast
-            ? "You survived the night, and arrive at breakfast. "
+          currentPlayer.readyForBreakfast
+            ? "You survived the night, and arrive at breakfast. You may speak to any player at breakfast "
             : "You are not yet at breakfast, and may not speak... who knows, maybe the treacherous killed you in the night? "
         }
-        canSpeak={player.readyForBreakfast ? false : round.canSpeak}
+        canSpeak={currentPlayer.readyForBreakfast}
       />
 
-      {done && <p>You wait nervously for claud</p>}
+      {done && (
+        <p>
+          You wait nervously for claud, who will take you direct to your daily
+          challenge
+        </p>
+      )}
 
       {gameData.players.every((player) => player.readyForBreakfast) &&
         !done && (
@@ -33,7 +39,7 @@ const BreakfastRound = ({
             <button
               onClick={() => {
                 setDone(true);
-                onRoundCompleted(initialPlayer.playerId);
+                onRoundCompleted(currentPlayer.playerId);
               }}
             >
               Morning Claud!
@@ -41,9 +47,8 @@ const BreakfastRound = ({
           </>
         )}
 
-      {player.readyForBreakfast && player.alive && (
+      {currentPlayer.readyForBreakfast && currentPlayer.alive && (
         <>
-          <p>You survived the night, and arrive at breakfast</p>
           <PlayerStatuses game={gameData} />
         </>
       )}

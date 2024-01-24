@@ -8,8 +8,8 @@ const RoundHeader = ({ roundName, playerInstruction, canSpeak }) => {
       ) : (
         <b>You may not talk at this moment - SILENCE </b>
       )}
-      <p>{playerInstruction}</p>
       <h1>Location: {roundName}</h1>
+      <p>{playerInstruction}</p>
     </div>
   );
 };

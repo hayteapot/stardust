@@ -7,9 +7,7 @@ export default async function handler(req, res) {
 
   // find this player id
   const redisClient = new RedisClient();
-  const session = await redisClient.getGameSession(gameId, sessionId);
-
-  console.log(session);
+  const session = await redisClient.getGameSessionWithLock(gameId, sessionId);
 
   session.playerName = playerName;
 
